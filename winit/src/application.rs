@@ -25,6 +25,7 @@ use futures::channel::mpsc;
 
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
+use winit::monitor::MonitorHandle;
 
 /// An interactive, native cross-platform application.
 ///
@@ -138,10 +139,11 @@ where
     let should_be_visible = settings.window.visible;
     let exit_on_close_request = settings.window.exit_on_close_request;
 
+    let primary_monitor = event_loop.primary_monitor();
     let builder = conversion::window_settings(
         settings.window,
         &application.title(),
-        event_loop.primary_monitor(),
+        primary_monitor.clone(),
         settings.id,
     )
     .with_visible(false);
@@ -213,6 +215,7 @@ where
         window,
         should_be_visible,
         exit_on_close_request,
+        primary_monitor.clone(),
     ));
 
     let mut context = task::Context::from_waker(task::noop_waker_ref());
@@ -285,6 +288,7 @@ async fn run_instance<A, E, C>(
     window: Arc<winit::window::Window>,
     should_be_visible: bool,
     exit_on_close_request: bool,
+    primary_monitor: Option<MonitorHandle>,
 ) where
     A: Application + 'static,
     E: Executor + 'static,
@@ -326,6 +330,7 @@ async fn run_instance<A, E, C>(
         &mut proxy,
         &mut debug,
         &window,
+        primary_monitor.clone(),
     );
     runtime.track(application.subscription().into_recipes());
 
@@ -539,6 +544,7 @@ async fn run_instance<A, E, C>(
                         &mut debug,
                         &mut messages,
                         &window,
+                        primary_monitor.clone(),
                     );
 
                     user_interface = ManuallyDrop::new(build_user_interface(
@@ -630,6 +636,7 @@ pub fn update<A: Application, C, E: Executor>(
     debug: &mut Debug,
     messages: &mut Vec<A::Message>,
     window: &winit::window::Window,
+    primary_monitor: Option<MonitorHandle>,
 ) where
     C: Compositor<Renderer = A::Renderer> + 'static,
     A::Theme: StyleSheet,
@@ -655,6 +662,7 @@ pub fn update<A: Application, C, E: Executor>(
             proxy,
             debug,
             window,
+            primary_monitor.clone(),
         );
     }
 
@@ -679,6 +687,7 @@ pub fn run_command<A, C, E>(
     proxy: &mut winit::event_loop::EventLoopProxy<A::Message>,
     debug: &mut Debug,
     window: &winit::window::Window,
+    primary_monitor: Option<MonitorHandle>,
 ) where
     A: Application,
     E: Executor,
@@ -728,6 +737,11 @@ pub fn run_command<A, C, E>(
                             width: size.width,
                             height: size.height,
                         });
+                }
+                window::Action::Reposition(_id, position, size) => {
+                    if let Some(position) = conversion::position(primary_monitor.as_ref(), size, position) {
+                        let _ = window.set_outer_position(position);
+                    }
                 }
                 window::Action::FetchSize(_id, callback) => {
                     let size =

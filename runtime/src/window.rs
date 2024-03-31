@@ -18,6 +18,7 @@ use crate::futures::Subscription;
 pub use raw_window_handle;
 
 use raw_window_handle::WindowHandle;
+use iced_core::window::Position;
 
 /// Subscribes to the frames of the window of the running application.
 ///
@@ -59,6 +60,11 @@ pub fn drag<Message>(id: Id) -> Command<Message> {
 /// Resizes the window to the given logical dimensions.
 pub fn resize<Message>(id: Id, new_size: Size) -> Command<Message> {
     Command::single(command::Action::Window(Action::Resize(id, new_size)))
+}
+
+/// Repositions the window
+pub fn reposition<Message>(id: Id, position: Position, new_size: Size) -> Command<Message> {
+    Command::single(command::Action::Window(Action::Reposition(id, position, new_size)))
 }
 
 /// Fetches the window's size in logical dimensions.

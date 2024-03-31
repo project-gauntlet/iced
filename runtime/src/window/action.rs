@@ -6,6 +6,7 @@ use crate::window::Screenshot;
 use raw_window_handle::WindowHandle;
 
 use std::fmt;
+use iced_core::window::Position;
 
 /// An operation to be performed on some window.
 pub enum Action<T> {
@@ -107,6 +108,8 @@ pub enum Action<T> {
     RunWithHandle(Id, Box<dyn FnOnce(&WindowHandle<'_>) -> T + 'static>),
     /// Screenshot the viewport of the window.
     Screenshot(Id, Box<dyn FnOnce(Screenshot) -> T + 'static>),
+    /// Reposition window.
+    Reposition(Id, Position, Size),
 }
 
 impl<T> Action<T> {
@@ -158,6 +161,7 @@ impl<T> Action<T> {
                 id,
                 Box::new(move |screenshot| f(tag(screenshot))),
             ),
+            Self::Reposition(id, position, size) => Action::Reposition(id, position, size),
         }
     }
 }
@@ -217,6 +221,7 @@ impl<T> fmt::Debug for Action<T> {
                 write!(f, "Action::RunWithHandle({id:?})")
             }
             Self::Screenshot(id, _) => write!(f, "Action::Screenshot({id:?})"),
+            Self::Reposition(id, _, _) => write!(f, "Action::Reposition({id:?})")
         }
     }
 }

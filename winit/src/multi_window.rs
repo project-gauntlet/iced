@@ -27,6 +27,8 @@ use std::collections::HashMap;
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
 use std::time::Instant;
+use winit::monitor::MonitorHandle;
+use crate::conversion::position;
 
 /// An interactive, native, cross-platform, multi-windowed application.
 ///
@@ -137,10 +139,11 @@ where
     let should_main_be_visible = settings.window.visible;
     let exit_on_close_request = settings.window.exit_on_close_request;
 
+    let primary_monitor = event_loop.primary_monitor();
     let builder = conversion::window_settings(
         settings.window,
         &application.title(window::Id::MAIN),
-        event_loop.primary_monitor(),
+        primary_monitor.clone(),
         settings.id,
     )
     .with_visible(false);
@@ -208,6 +211,7 @@ where
         init_command,
         window_manager,
         should_main_be_visible,
+        primary_monitor.clone()
     ));
 
     let mut context = task::Context::from_waker(task::noop_waker_ref());
@@ -345,6 +349,7 @@ async fn run_instance<A, E, C>(
     init_command: Command<A::Message>,
     mut window_manager: WindowManager<A, C>,
     should_main_window_be_visible: bool,
+    primary_monitor: Option<MonitorHandle>,
 ) where
     A: Application + 'static,
     E: Executor + 'static,
@@ -398,6 +403,7 @@ async fn run_instance<A, E, C>(
         &mut debug,
         &mut window_manager,
         &mut ui_caches,
+        primary_monitor.clone(),
     );
 
     runtime.track(application.subscription().into_recipes());
@@ -758,6 +764,7 @@ async fn run_instance<A, E, C>(
                                 &mut messages,
                                 &mut window_manager,
                                 &mut cached_interfaces,
+                                primary_monitor.clone()
                             );
 
                             // we must synchronize all window states with application state after an
@@ -829,6 +836,7 @@ fn update<A: Application, C, E: Executor>(
     messages: &mut Vec<A::Message>,
     window_manager: &mut WindowManager<A, C>,
     ui_caches: &mut HashMap<window::Id, user_interface::Cache>,
+    primary_monitor: Option<MonitorHandle>,
 ) where
     C: Compositor<Renderer = A::Renderer> + 'static,
     A::Theme: StyleSheet,
@@ -851,6 +859,7 @@ fn update<A: Application, C, E: Executor>(
             debug,
             window_manager,
             ui_caches,
+            primary_monitor.clone(),
         );
     }
 
@@ -870,6 +879,7 @@ fn run_command<A, C, E>(
     debug: &mut Debug,
     window_manager: &mut WindowManager<A, C>,
     ui_caches: &mut HashMap<window::Id, user_interface::Cache>,
+    primary_monitor: Option<MonitorHandle>,
 ) where
     A: Application,
     E: Executor,
@@ -936,6 +946,13 @@ fn run_command<A, C, E>(
                                 height: size.height,
                             },
                         );
+                    }
+                }
+                window::Action::Reposition(id, position, size) => {
+                    if let Some(window) = window_manager.get_mut(id) {
+                        if let Some(position) = conversion::position(primary_monitor.as_ref(), size, position) {
+                            let _ = window.raw.set_outer_position(position);
+                        }
                     }
                 }
                 window::Action::FetchSize(id, callback) => {
