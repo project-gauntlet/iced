@@ -2,13 +2,14 @@
 //!
 //! A [`Button`] has some local [`State`].
 use crate::core::event::{self, Event};
-use crate::core::layout;
+use crate::core::keyboard::key;
 use crate::core::mouse;
 use crate::core::overlay;
 use crate::core::renderer;
 use crate::core::touch;
 use crate::core::widget::tree::{self, Tree};
-use crate::core::widget::Operation;
+use crate::core::widget::{operation, Operation};
+use crate::core::{keyboard, layout, widget};
 use crate::core::{
     Background, Clipboard, Color, Element, Layout, Length, Padding, Rectangle,
     Shell, Size, Vector, Widget,
@@ -56,6 +57,7 @@ where
     Theme: StyleSheet,
     Renderer: crate::core::Renderer,
 {
+    id: Option<Id>,
     content: Element<'a, Message, Theme, Renderer>,
     on_press: Option<Message>,
     width: Length,
@@ -78,6 +80,7 @@ where
         let size = content.as_widget().size_hint();
 
         Button {
+            id: None,
             content,
             on_press: None,
             width: size.width.fluid(),
@@ -86,6 +89,12 @@ where
             clip: false,
             style: Theme::Style::default(),
         }
+    }
+
+    /// Sets the [`Id`] of the [`Button`].
+    pub fn id(mut self, id: Id) -> Self {
+        self.id = Some(id);
+        self
     }
 
     /// Sets the width of the [`Button`].
@@ -189,6 +198,9 @@ where
         renderer: &Renderer,
         operation: &mut dyn Operation<Message>,
     ) {
+        let state = tree.state.downcast_mut::<State>();
+        operation.focusable(state, self.id.as_ref().map(|id| &id.0));
+
         operation.container(None, layout.bounds(), &mut |operation| {
             self.content.as_widget().operate(
                 &mut tree.children[0],
@@ -312,13 +324,74 @@ where
 /// The local state of a [`Button`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct State {
+    is_focused: bool,
     is_pressed: bool,
+    is_active: bool,
 }
 
 impl State {
     /// Creates a new [`State`].
     pub fn new() -> State {
         State::default()
+    }
+
+    fn is_focused(&self) -> bool {
+        self.is_focused
+    }
+
+    fn pressed(&mut self) {
+        self.is_focused = true;
+        self.is_pressed = true;
+        self.is_active = true;
+    }
+
+    fn focus(&mut self) {
+        self.is_focused = true;
+    }
+
+    fn reset(&mut self) {
+        self.is_pressed = false;
+        self.is_active = false;
+        self.is_focused = false;
+    }
+}
+
+impl operation::Focusable for State {
+    fn is_focused(&self) -> bool {
+        State::is_focused(&self)
+    }
+
+    fn focus(&mut self) {
+        State::reset(self);
+        State::focus(self)
+    }
+
+    fn unfocus(&mut self) {
+        Self::reset(self)
+    }
+}
+
+/// The identifier of a [`Button`].
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Id(widget::Id);
+
+impl Id {
+    /// Creates a custom [`Id`].
+    pub fn new(id: impl Into<std::borrow::Cow<'static, str>>) -> Self {
+        Self(widget::Id::new(id))
+    }
+
+    /// Creates a unique [`Id`].
+    ///
+    /// This function produces a different [`Id`] every time it is called.
+    pub fn unique() -> Self {
+        Self(widget::Id::unique())
+    }
+}
+
+impl From<Id> for widget::Id {
+    fn from(id: Id) -> Self {
+        id.0
     }
 }
 
@@ -338,12 +411,13 @@ pub fn update<'a, Message: Clone>(
             if on_press.is_some() {
                 let bounds = layout.bounds();
 
+                let state = state();
                 if cursor.is_over(bounds) {
-                    let state = state();
-
-                    state.is_pressed = true;
+                    state.pressed();
 
                     return event::Status::Captured;
+                } else {
+                    state.reset();
                 }
             }
         }
@@ -353,7 +427,7 @@ pub fn update<'a, Message: Clone>(
                 let state = state();
 
                 if state.is_pressed {
-                    state.is_pressed = false;
+                    state.reset();
 
                     let bounds = layout.bounds();
 
@@ -368,7 +442,21 @@ pub fn update<'a, Message: Clone>(
         Event::Touch(touch::Event::FingerLost { .. }) => {
             let state = state();
 
-            state.is_pressed = false;
+            state.reset();
+        }
+        Event::Keyboard(keyboard::Event::KeyPressed { key, .. }) => {
+            match key.as_ref() {
+                keyboard::Key::Named(key::Named::Enter) => {
+                    let state = state();
+                    if state.is_focused() {
+                        if let Some(on_press) = on_press.clone() {
+                            shell.publish(on_press);
+                            state.pressed();
+                        }
+                    }
+                }
+                _ => {}
+            }
         }
         _ => {}
     }
@@ -402,7 +490,12 @@ where
             theme.hovered(style)
         }
     } else {
-        theme.active(style)
+        let state = state();
+        if state.is_focused {
+            theme.focused(style, state.is_active)
+        } else {
+            theme.active(style)
+        }
     };
 
     if styling.background.is_some()
