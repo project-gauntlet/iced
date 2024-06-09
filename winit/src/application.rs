@@ -115,9 +115,20 @@ where
     let mut debug = Debug::new();
     debug.startup_started();
 
-    let event_loop = EventLoopBuilder::with_user_event()
+    let mut event_loop_builder = EventLoopBuilder::with_user_event();
+
+    #[cfg(target_os = "macos")]
+    use winit::platform::macos::{EventLoopBuilderExtMacOS, ActivationPolicy};
+
+    #[cfg(target_os = "macos")]
+    let event_loop_builder = event_loop_builder
+        .with_activation_policy(ActivationPolicy::Accessory) // hide app icon from macos dock
+        .with_activate_ignoring_other_apps(false); // when used with ActivationPolicy::Accessory, fixes issue when windows is not focused when opened
+
+    let event_loop = event_loop_builder
         .build()
         .expect("Create event loop");
+
     let proxy = event_loop.create_proxy();
 
     let runtime = {
