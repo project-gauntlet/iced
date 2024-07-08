@@ -7,5 +7,6 @@ mod modifiers;
 
 pub use event::Event;
 pub use key::Key;
+pub use key::PhysicalKey;
 pub use location::Location;
 pub use modifiers::Modifiers;
