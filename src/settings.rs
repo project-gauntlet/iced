@@ -18,6 +18,10 @@ pub struct Settings<Flags> {
     /// They will be ignored on the Web.
     pub window: window::Settings,
 
+    /// The window settings.
+    #[cfg(feature = "wayland")]
+    pub initial_surface: iced_sctk::settings::InitialSurface,
+
     /// The data needed to initialize the [`Application`].
     ///
     /// [`Application`]: crate::Application
@@ -46,6 +50,10 @@ pub struct Settings<Flags> {
     ///
     /// [`Canvas`]: crate::widget::Canvas
     pub antialiasing: bool,
+
+    /// If set to true the application will exit when the main window is closed.
+    #[cfg(feature = "wayland")]
+    pub exit_on_close_request: bool,
 }
 
 impl<Flags> Settings<Flags> {
@@ -59,10 +67,14 @@ impl<Flags> Settings<Flags> {
             flags,
             id: default_settings.id,
             window: default_settings.window,
+            #[cfg(feature = "wayland")]
+            initial_surface: default_settings.initial_surface,
             fonts: default_settings.fonts,
             default_font: default_settings.default_font,
             default_text_size: default_settings.default_text_size,
             antialiasing: default_settings.antialiasing,
+            #[cfg(feature = "wayland")]
+            exit_on_close_request: default_settings.exit_on_close_request,
         }
     }
 }
@@ -75,11 +87,15 @@ where
         Self {
             id: None,
             window: window::Settings::default(),
+            #[cfg(feature = "wayland")]
+            initial_surface: iced_sctk::settings::InitialSurface::default(),
             flags: Default::default(),
             fonts: Vec::new(),
             default_font: Font::default(),
             default_text_size: Pixels(16.0),
             antialiasing: false,
+            #[cfg(feature = "wayland")]
+            exit_on_close_request: true,
         }
     }
 }
@@ -91,6 +107,19 @@ impl<Flags> From<Settings<Flags>> for iced_winit::Settings<Flags> {
             window: settings.window,
             flags: settings.flags,
             fonts: settings.fonts,
+        }
+    }
+}
+
+#[cfg(feature = "wayland")]
+impl<Flags> From<Settings<Flags>> for iced_sctk::Settings<Flags> {
+    fn from(settings: Settings<Flags>) -> iced_sctk::Settings<Flags> {
+        iced_sctk::Settings {
+            kbd_repeat: Default::default(),
+            surface: settings.initial_surface,
+            flags: settings.flags,
+            exit_on_close_request: settings.exit_on_close_request,
+            ptr_theme: None,
         }
     }
 }

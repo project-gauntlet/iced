@@ -186,6 +186,9 @@ pub mod advanced;
 #[cfg(feature = "multi-window")]
 pub mod multi_window;
 
+#[cfg(feature = "wayland")]
+pub use iced_sctk as wayland;
+
 pub use style::theme;
 
 pub use crate::core::alignment;

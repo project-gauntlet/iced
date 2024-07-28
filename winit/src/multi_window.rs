@@ -29,6 +29,7 @@ use std::sync::Arc;
 use std::time::Instant;
 use winit::monitor::MonitorHandle;
 use crate::conversion::position;
+use iced_runtime::command::Action;
 
 /// An interactive, native, cross-platform, multi-windowed application.
 ///
@@ -1185,6 +1186,9 @@ fn run_command<A, C, E>(
             }
             command::Action::Custom(_) => {
                 log::warn!("Unsupported custom action in `iced_winit` shell");
+            }
+            Action::PlatformSpecific(_) => {
+                tracing::warn!("Platform specific commands are not supported yet in multi-window winit mode.");
             }
         }
     }

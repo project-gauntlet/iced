@@ -46,6 +46,9 @@ pub enum Action<T> {
 
     /// A custom action supported by a specific runtime.
     Custom(Box<dyn Any>),
+
+    /// Run a platform specific action
+    PlatformSpecific(crate::command::platform_specific::Action<T>),
 }
 
 impl<T> Action<T> {
@@ -76,6 +79,9 @@ impl<T> Action<T> {
                 tagger: Box::new(move |result| f(tagger(result))),
             },
             Self::Custom(custom) => Action::Custom(custom),
+            Self::PlatformSpecific(action) => {
+                Action::PlatformSpecific(action.map(f))
+            }
         }
     }
 }
@@ -95,6 +101,9 @@ impl<T> fmt::Debug for Action<T> {
             Self::Widget(_action) => write!(f, "Action::Widget"),
             Self::LoadFont { .. } => write!(f, "Action::LoadFont"),
             Self::Custom(_) => write!(f, "Action::Custom"),
+            Self::PlatformSpecific(action) => {
+                write!(f, "Action::PlatformSpecific({:?})", action)
+            }
         }
     }
 }

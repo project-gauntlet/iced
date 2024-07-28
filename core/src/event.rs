@@ -3,6 +3,9 @@ use crate::keyboard;
 use crate::mouse;
 use crate::touch;
 use crate::window;
+#[cfg(feature = "wayland")]
+/// A platform specific event for wayland
+pub mod wayland;
 
 /// A user interface event.
 ///
@@ -23,6 +26,17 @@ pub enum Event {
 
     /// A touch event
     Touch(touch::Event),
+
+    /// A platform specific event
+    PlatformSpecific(PlatformSpecific),
+}
+
+/// A platform specific event
+#[derive(Debug, Clone, PartialEq)]
+pub enum PlatformSpecific {
+    /// A Wayland specific event
+    #[cfg(feature = "wayland")]
+    Wayland(wayland::Event),
 }
 
 /// The status of an [`Event`] after being processed.

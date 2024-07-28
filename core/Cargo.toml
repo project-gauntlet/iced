@@ -10,6 +10,9 @@ homepage.workspace = true
 categories.workspace = true
 keywords.workspace = true
 
+[features]
+wayland = ["sctk"]
+
 [dependencies]
 bitflags.workspace = true
 glam.workspace = true
@@ -19,6 +22,8 @@ smol_str.workspace = true
 thiserror.workspace = true
 web-time.workspace = true
 xxhash-rust.workspace = true
+sctk.workspace = true
+sctk.optional = true
 
 palette.workspace = true
 palette.optional = true

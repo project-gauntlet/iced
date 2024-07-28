@@ -13,11 +13,14 @@ keywords.workspace = true
 [features]
 debug = []
 multi-window = []
+wayland = ["iced_core/wayland", "sctk"]
 
 [dependencies]
 iced_core.workspace = true
 iced_futures.workspace = true
 iced_futures.features = ["thread-pool"]
+sctk.workspace = true
+sctk.optional = true
 
 thiserror.workspace = true
 raw-window-handle.workspace = true

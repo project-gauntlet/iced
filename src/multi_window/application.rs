@@ -188,6 +188,32 @@ pub trait Application: Sized {
             crate::renderer::Compositor,
         >(settings.into(), renderer_settings)?)
     }
+
+    #[cfg(feature = "wayland")]
+    #[allow(missing_docs)]
+    fn run_wayland(settings: Settings<Self::Flags>) -> crate::Result
+    where
+        Self: 'static,
+    {
+        #[allow(clippy::needless_update)]
+        let renderer_settings = crate::renderer::Settings {
+            default_font: settings.default_font,
+            default_text_size: settings.default_text_size,
+            antialiasing: if settings.antialiasing {
+                Some(crate::graphics::Antialiasing::MSAAx4)
+            } else {
+                None
+            },
+            ..crate::renderer::Settings::default()
+        };
+
+        iced_sctk::run::<Instance<Self>, Self::Executor, crate::renderer::Compositor>(
+            settings.into(),
+            renderer_settings
+        )?;
+
+        Ok(())
+    }
 }
 
 struct Instance<A: Application>(A);
@@ -242,5 +268,39 @@ where
 
     fn scale_factor(&self, window: window::Id) -> f64 {
         self.0.scale_factor(window)
+    }
+}
+
+
+#[cfg(feature = "wayland")]
+impl<A> iced_sctk::Application for Instance<A>
+where
+    A: Application,
+{
+    type Flags = A::Flags;
+
+    fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        let (this, command) = A::new(flags);
+        (Instance(this), command)
+    }
+
+    fn title(&self, window: window::Id) -> String {
+        A::title(&self.0, window)
+    }
+
+    fn theme(&self, window: window::Id) -> Self::Theme {
+        A::theme(&self.0, window)
+    }
+
+    fn style(&self) -> <Self::Theme as StyleSheet>::Style {
+        A::style(&self.0)
+    }
+
+    fn subscription(&self) -> Subscription<Self::Message> {
+        A::subscription(&self.0)
+    }
+
+    fn scale_factor(&self, window: window::Id) -> f64 {
+        A::scale_factor(&self.0, window)
     }
 }

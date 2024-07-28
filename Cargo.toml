@@ -32,7 +32,7 @@ qr_code = ["iced_widget/qr_code"]
 # Enables lazy widgets
 lazy = ["iced_widget/lazy"]
 # Enables a debug view in native platforms (press F12)
-debug = ["iced_winit/debug"]
+debug = ["iced_winit/debug", "iced_sctk/debug"]
 # Enables `tokio` as the `executor::Default` on native platforms
 tokio = ["iced_futures/tokio"]
 # Enables `async-std` as the `executor::Default` on native platforms
@@ -55,15 +55,18 @@ multi-window = ["iced_winit/multi-window"]
 advanced = []
 # Enables embedding Fira Sans as the default font on Wasm builds
 fira-sans = ["iced_renderer/fira-sans"]
+wayland = ["iced_sctk", "iced_core/wayland"]
 
 [dependencies]
 iced_core.workspace = true
+iced_runtime.workspace = true
 iced_futures.workspace = true
 iced_renderer.workspace = true
 iced_widget.workspace = true
 iced_winit.features = ["application"]
 iced_winit.workspace = true
-
+iced_sctk.workspace = true
+iced_sctk.optional = true
 iced_highlighter.workspace = true
 iced_highlighter.optional = true
 
@@ -95,6 +98,7 @@ members = [
     "wgpu",
     "widget",
     "winit",
+    "sctk",
     "examples/*",
 ]
 
@@ -121,6 +125,7 @@ iced_tiny_skia = { version = "0.12", path = "tiny_skia" }
 iced_wgpu = { version = "0.12", path = "wgpu" }
 iced_widget = { version = "0.12", path = "widget" }
 iced_winit = { version = "0.12", path = "winit" }
+iced_sctk = { version = "0.1", path = "sctk" }
 
 async-std = "1.0"
 bitflags = "2.0"
@@ -145,6 +150,7 @@ qrcode = { version = "0.13", default-features = false }
 raw-window-handle = "0.6"
 resvg = "0.36"
 rustc-hash = "1.0"
+sctk = { package = "smithay-client-toolkit", git = "https://github.com/smithay/client-toolkit", rev = "2e9bf9f" }
 smol = "1.0"
 smol_str = "0.2"
 softbuffer = "0.4"
@@ -158,6 +164,7 @@ xxhash-rust = { version = "0.8", features = ["xxh3"] }
 unicode-segmentation = "1.0"
 wasm-bindgen-futures = "0.4"
 wasm-timer = "0.2"
+wayland-protocols = { version = "0.31.0", features = [ "staging"]}
 web-sys = "=0.3.67"
 web-time = "0.2"
 wgpu = "0.19"

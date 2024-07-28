@@ -25,6 +25,7 @@ use futures::channel::mpsc;
 
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
+use iced_runtime::command::Action;
 use winit::monitor::MonitorHandle;
 
 /// An interactive, native cross-platform application.
@@ -928,6 +929,9 @@ pub fn run_command<A, C, E>(
             }
             command::Action::Custom(_) => {
                 log::warn!("Unsupported custom action in `iced_winit` shell");
+            }
+            Action::PlatformSpecific(_) => {
+                tracing::warn!("Platform specific commands are not supported yet in multi-window winit mode.");
             }
         }
     }
