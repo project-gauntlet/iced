@@ -25,6 +25,7 @@ use futures::channel::mpsc;
 
 use std::mem::ManuallyDrop;
 use std::sync::Arc;
+use winit::event_loop::EventLoop;
 use iced_runtime::command::Action;
 use winit::monitor::MonitorHandle;
 
@@ -116,9 +117,31 @@ where
     let mut debug = Debug::new();
     debug.startup_started();
 
-    let event_loop = EventLoopBuilder::with_user_event()
+    let mut event_loop_builder = EventLoopBuilder::with_user_event();
+
+    #[cfg(target_os = "macos")]
+    let event_loop_builder = {
+        use winit::platform::macos::{ActivationPolicy, EventLoopBuilderExtMacOS};
+
+        let macos_settings = settings.window.platform_specific;
+
+        let activation_policy = match macos_settings.activation_policy {
+            window::settings::ActivationPolicy::Regular => ActivationPolicy::Regular,
+            window::settings::ActivationPolicy::Accessory => ActivationPolicy::Accessory,
+            window::settings::ActivationPolicy::Prohibited => ActivationPolicy::Prohibited
+        };
+
+        let activate_ignoring_other_apps = macos_settings.activate_ignoring_other_apps;
+
+        event_loop_builder
+            .with_activation_policy(activation_policy)
+            .with_activate_ignoring_other_apps(activate_ignoring_other_apps)
+    };
+
+    let event_loop = event_loop_builder
         .build()
         .expect("Create event loop");
+
     let proxy = event_loop.create_proxy();
 
     let runtime = {
