@@ -888,6 +888,10 @@ where
 
                 match key.as_ref() {
                     keyboard::Key::Named(key::Named::Enter) => {
+                        if ignore_with_modifiers && !modifiers.is_empty() {
+                            return event::Status::Ignored;
+                        }
+
                         if let Some(on_submit) = on_submit.clone() {
                             shell.publish(on_submit);
                         }
