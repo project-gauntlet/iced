@@ -109,6 +109,7 @@ pub struct TextInput<
     placeholder: String,
     value: Value,
     is_secure: bool,
+    ignore_with_modifiers: bool,
     font: Option<Renderer::Font>,
     width: Length,
     padding: Padding,
@@ -139,6 +140,7 @@ where
             placeholder: String::from(placeholder),
             value: Value::new(value),
             is_secure: false,
+            ignore_with_modifiers: false,
             font: None,
             width: Length::Fill,
             padding: DEFAULT_PADDING,
@@ -162,6 +164,15 @@ where
     /// Converts the [`TextInput`] into a secure password input.
     pub fn secure(mut self, is_secure: bool) -> Self {
         self.is_secure = is_secure;
+        self
+    }
+
+    /// By default, CTRL + key will not input that key, but alt + key will.
+    /// And both will return `Status::Captured`
+    /// Setting this to `true` will return `Status::Ignored` for any key
+    /// if any of ALT, CTRL or LOGO modifiers is held
+    pub fn ignore_with_modifiers(mut self, ignore_with_modifiers: bool) -> Self {
+        self.ignore_with_modifiers = ignore_with_modifiers;
         self
     }
 
@@ -911,6 +922,14 @@ where
                         _ => {}
                     }
 
+                    if self.ignore_with_modifiers {
+                        if let keyboard::Key::Character(_) = key {
+                            if modifiers.control() || modifiers.alt() || modifiers.logo() {
+                                return event::Status::Ignored;
+                            }
+                        }
+                    }
+
                     if let Some(text) = text {
                         let Some(on_input) = &self.on_input else {
                             return event::Status::Ignored;
@@ -939,6 +958,10 @@ where
 
                     match key.as_ref() {
                         keyboard::Key::Named(key::Named::Enter) => {
+                            if self.ignore_with_modifiers && !modifiers.is_empty() {
+                                return event::Status::Ignored;
+                            }
+
                             if let Some(on_submit) = self.on_submit.clone() {
                                 shell.publish(on_submit);
                             }
