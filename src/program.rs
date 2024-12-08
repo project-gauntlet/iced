@@ -184,6 +184,7 @@ pub trait Program: Sized {
                 default_font: settings.default_font,
                 default_text_size: settings.default_text_size,
                 antialiasing: settings.antialiasing,
+                platform_specific: settings.platform_specific,
             }
             .into(),
             renderer_settings,

@@ -41,6 +41,9 @@ pub use clipboard::Clipboard;
 pub use error::Error;
 pub use proxy::Proxy;
 pub use settings::Settings;
+pub use settings::PlatformSpecific;
+#[cfg(target_os = "macos")]
+pub use settings::ActivationPolicy;
 
 #[cfg(feature = "program")]
 pub use program::Program;

@@ -2,6 +2,9 @@
 use crate::{Font, Pixels};
 
 use std::borrow::Cow;
+pub use iced_winit::settings::PlatformSpecific;
+#[cfg(target_os = "macos")]
+pub use iced_winit::settings::ActivationPolicy;
 
 /// The settings of an iced program.
 #[derive(Debug, Clone)]
@@ -35,6 +38,8 @@ pub struct Settings {
     ///
     /// [`Canvas`]: crate::widget::Canvas
     pub antialiasing: bool,
+    ///
+    pub platform_specific: PlatformSpecific,
 }
 
 impl Default for Settings {
@@ -45,6 +50,7 @@ impl Default for Settings {
             default_font: Font::default(),
             default_text_size: Pixels(16.0),
             antialiasing: false,
+            platform_specific: Default::default(),
         }
     }
 }
@@ -54,6 +60,7 @@ impl From<Settings> for iced_winit::Settings {
         iced_winit::Settings {
             id: settings.id,
             fonts: settings.fonts,
+            platform_specific: settings.platform_specific,
         }
     }
 }
