@@ -1318,8 +1318,9 @@ dependencies = [
 
 [[package]]
 name = "dpi"
-version = "0.1.1"
-source = "git+https://github.com/iced-rs/winit.git?rev=11414b6aa45699f038114e61b4ddf5102b2d3b4b#11414b6aa45699f038114e61b4ddf5102b2d3b4b"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
 
 [[package]]
 name = "drm"
@@ -2398,7 +2399,7 @@ dependencies = [
 
 [[package]]
 name = "iced"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "criterion",
  "iced_core",
@@ -2417,7 +2418,7 @@ dependencies = [
 
 [[package]]
 name = "iced_beacon"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "bincode",
  "futures",
@@ -2431,7 +2432,7 @@ dependencies = [
 
 [[package]]
 name = "iced_core"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "bitflags 2.9.1",
  "bytes",
@@ -2449,7 +2450,7 @@ dependencies = [
 
 [[package]]
 name = "iced_debug"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "iced_beacon",
  "iced_core",
@@ -2459,7 +2460,7 @@ dependencies = [
 
 [[package]]
 name = "iced_devtools"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "iced_debug",
  "iced_program",
@@ -2469,7 +2470,7 @@ dependencies = [
 
 [[package]]
 name = "iced_futures"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "futures",
  "iced_core",
@@ -2483,7 +2484,7 @@ dependencies = [
 
 [[package]]
 name = "iced_graphics"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "bitflags 2.9.1",
  "bytemuck",
@@ -2503,7 +2504,7 @@ dependencies = [
 
 [[package]]
 name = "iced_highlighter"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "iced_core",
  "syntect",
@@ -2511,7 +2512,7 @@ dependencies = [
 
 [[package]]
 name = "iced_program"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "iced_graphics",
  "iced_runtime",
@@ -2519,7 +2520,7 @@ dependencies = [
 
 [[package]]
 name = "iced_renderer"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "iced_graphics",
  "iced_tiny_skia",
@@ -2530,7 +2531,7 @@ dependencies = [
 
 [[package]]
 name = "iced_runtime"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "bytes",
  "iced_core",
@@ -2543,7 +2544,7 @@ dependencies = [
 
 [[package]]
 name = "iced_test"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "iced_renderer",
  "iced_runtime",
@@ -2554,7 +2555,7 @@ dependencies = [
 
 [[package]]
 name = "iced_tiny_skia"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "bytemuck",
  "cosmic-text",
@@ -2570,7 +2571,7 @@ dependencies = [
 
 [[package]]
 name = "iced_wgpu"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "bitflags 2.9.1",
  "bytemuck",
@@ -2590,7 +2591,7 @@ dependencies = [
 
 [[package]]
 name = "iced_widget"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "iced_highlighter",
  "iced_renderer",
@@ -2608,7 +2609,7 @@ dependencies = [
 
 [[package]]
 name = "iced_winit"
-version = "0.14.0-dev"
+version = "0.13.99"
 dependencies = [
  "iced_debug",
  "iced_program",
@@ -7275,8 +7276,8 @@ checksum = "271414315aff87387382ec3d271b52d7ae78726f5d44ac98b4f4030c91880486"
 
 [[package]]
 name = "winit"
-version = "0.30.8"
-source = "git+https://github.com/iced-rs/winit.git?rev=11414b6aa45699f038114e61b4ddf5102b2d3b4b#11414b6aa45699f038114e61b4ddf5102b2d3b4b"
+version = "0.30.99"
+source = "git+https://github.com/project-gauntlet/winit.git?rev=49690da86351375d2e2ebe8b891cdb90a019b996#49690da86351375d2e2ebe8b891cdb90a019b996"
 dependencies = [
  "ahash",
  "android-activity",
