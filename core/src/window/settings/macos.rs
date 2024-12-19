@@ -21,4 +21,6 @@ pub enum WindowKind {
     Normal,
     ///
     Popup,
+    ///
+    Panel,
 }

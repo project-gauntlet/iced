@@ -187,7 +187,7 @@ wgpu = "23.0"
 winapi = "0.3"
 window_clipboard = "0.4.1"
 #winit = "0.30.99"
-winit = { git = "https://github.com/project-gauntlet/winit.git", rev = "ddf41619ffb9e1fc9fc157ca6ea99b81e62b0e5a" }
+winit = { git = "https://github.com/project-gauntlet/winit.git", rev = "e710490e0da949f68b40a4e9de2678ac77543f3e" }
 
 [workspace.lints.rust]
 rust_2018_idioms = { level = "forbid", priority = -1 }

@@ -101,6 +101,7 @@ pub fn window_attributes(
             .with_kind(match settings.platform_specific.window_kind {
                 WindowKind::Normal => winit::platform::macos::WindowKind::Normal,
                 WindowKind::Popup => winit::platform::macos::WindowKind::Popup,
+                WindowKind::Panel => winit::platform::macos::WindowKind::Panel,
             });
     }
 
