@@ -56,6 +56,12 @@ pub struct Settings {
     /// Whether the window should be resizable or not.
     pub resizable: bool,
 
+    ///
+    pub closeable: bool,
+
+    ///
+    pub minimizable: bool,
+
     /// Whether the window should have a border, a title bar, etc. or not.
     pub decorations: bool,
 
@@ -93,6 +99,8 @@ impl Default for Settings {
             max_size: None,
             visible: true,
             resizable: true,
+            minimizable: true,
+            closeable: true,
             decorations: true,
             transparent: false,
             level: Level::default(),
