@@ -964,6 +964,8 @@ where
 
                             if let Some(on_submit) = self.on_submit.clone() {
                                 shell.publish(on_submit);
+                            } else {
+                                return event::Status::Ignored;
                             }
                         }
                         keyboard::Key::Named(key::Named::Backspace) => {
