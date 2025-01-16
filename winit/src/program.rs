@@ -1490,6 +1490,28 @@ fn run_action<P, C>(
                     let _ = window.raw.set_cursor_hittest(true);
                 }
             }
+            #[cfg(target_os = "macos")]
+            window::Action::MoveToActiveMonitor(id) => {
+                if let Some(window) = window_manager.get_mut(id) {
+                    if let Some(current_monitor) = window.raw.current_monitor() {
+                        if let Some(window_position) = window.raw.outer_position().ok() {
+                            let monitor_position = current_monitor.position();
+
+                            let x = window_position.x - monitor_position.x;
+                            let y = window_position.y - monitor_position.y;
+
+                            if let Some(active_monitor) = &window.raw.active_monitor() {
+                                let active_monitor_position = active_monitor.position();
+
+                                let x = active_monitor_position.x + x;
+                                let y = active_monitor_position.y + y;
+
+                                window.raw.set_outer_position(winit::dpi::PhysicalPosition::new(x, y));
+                            }
+                        }
+                    }
+                }
+            }
         },
         Action::System(action) => match action {
             system::Action::QueryInformation(_channel) => {

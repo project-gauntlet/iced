@@ -77,6 +77,10 @@ pub enum Action {
     /// Get the current [`Mode`] of the window.
     GetMode(Id, oneshot::Sender<Mode>),
 
+    ///
+    #[cfg(target_os = "macos")]
+    MoveToActiveMonitor(Id),
+
     /// Toggle the window to maximized or back
     ToggleMaximize(Id),
 
@@ -433,4 +437,10 @@ pub fn enable_mouse_passthrough<Message>(id: Id) -> Task<Message> {
 /// from being passed to whatever is underneath.
 pub fn disable_mouse_passthrough<Message>(id: Id) -> Task<Message> {
     task::effect(crate::Action::Window(Action::DisableMousePassthrough(id)))
+}
+
+///
+#[cfg(target_os = "macos")]
+pub fn move_to_active_monitor<Message>(id: Id) -> Task<Message> {
+    task::effect(crate::Action::Window(Action::MoveToActiveMonitor(id)))
 }
