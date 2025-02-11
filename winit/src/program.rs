@@ -1495,18 +1495,36 @@ fn run_action<P, C>(
                 if let Some(window) = window_manager.get_mut(id) {
                     if let Some(current_monitor) = window.raw.current_monitor() {
                         if let Some(window_position) = window.raw.outer_position().ok() {
-                            let monitor_position = current_monitor.position();
+                            if let Some(active_monitor) = window.raw.active_monitor() {
+                                let current_monitor_pos = current_monitor.position();
+                                let active_monitor_pos = active_monitor.position();
+                                let current_monitor_size = current_monitor.size();
+                                let active_monitor_size = active_monitor.size();
+                                let window_size = window.raw.outer_size();
 
-                            let x = window_position.x - monitor_position.x;
-                            let y = window_position.y - monitor_position.y;
+                                // compute window center relative to the original monitor
+                                let window_center_x = window_position.x + (window_size.width as i32) / 2;
+                                let window_center_y = window_position.y + (window_size.height as i32) / 2;
 
-                            if let Some(active_monitor) = &window.raw.active_monitor() {
-                                let active_monitor_position = active_monitor.position();
+                                let x_rel = (window_center_x - current_monitor_pos.x) as f32 / current_monitor_size.width as f32;
+                                let y_rel = (window_center_y - current_monitor_pos.y) as f32 / current_monitor_size.height as f32;
 
-                                let x = active_monitor_position.x + x;
-                                let y = active_monitor_position.y + y;
+                                // compute new centered position
+                                let new_center_x = (active_monitor_pos.x as f32 + x_rel * active_monitor_size.width as f32) as i32;
+                                let new_center_y = (active_monitor_pos.y as f32 + y_rel * active_monitor_size.height as f32) as i32;
 
-                                window.raw.set_outer_position(winit::dpi::PhysicalPosition::new(x, y));
+                                // adjust to top-left by subtracting half the window size
+                                let new_x = new_center_x - (window_size.width as i32) / 2;
+                                let new_y = new_center_y - (window_size.height as i32) / 2;
+
+                                // clamp within bounds of new monitor
+                                let max_x = active_monitor_pos.x + (active_monitor_size.width as i32) - (window_size.width as i32);
+                                let max_y = active_monitor_pos.y + (active_monitor_size.height as i32) - (window_size.height as i32);
+
+                                let clamped_x = new_x.clamp(active_monitor_pos.x, max_x);
+                                let clamped_y = new_y.clamp(active_monitor_pos.y, max_y);
+
+                                window.raw.set_outer_position(winit::dpi::PhysicalPosition::new(clamped_x, clamped_y));
                             }
                         }
                     }
