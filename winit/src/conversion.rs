@@ -104,6 +104,7 @@ pub fn window_attributes(
     #[cfg(target_os = "macos")]
     {
         use winit::platform::macos::WindowAttributesExtMacOS;
+        use crate::core::window::settings::WindowKind;
 
         attributes = attributes
             .with_title_hidden(settings.platform_specific.title_hidden)
@@ -112,7 +113,12 @@ pub fn window_attributes(
             )
             .with_fullsize_content_view(
                 settings.platform_specific.fullsize_content_view,
-            );
+            )
+            .with_kind(match settings.platform_specific.window_kind {
+                WindowKind::Normal => winit::platform::macos::WindowKind::Normal,
+                WindowKind::Popup => winit::platform::macos::WindowKind::Popup,
+                WindowKind::Panel => winit::platform::macos::WindowKind::Panel,
+            });
     }
 
     #[cfg(target_os = "linux")]

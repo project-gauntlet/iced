@@ -9,4 +9,18 @@ pub struct PlatformSpecific {
     pub titlebar_transparent: bool,
     /// Makes the window content appear behind the titlebar.
     pub fullsize_content_view: bool,
+    ///
+    pub window_kind: WindowKind,
+}
+
+///
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum WindowKind {
+    ///
+    #[default]
+    Normal,
+    ///
+    Popup,
+    ///
+    Panel,
 }
