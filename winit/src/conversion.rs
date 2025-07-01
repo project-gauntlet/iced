@@ -2,12 +2,14 @@
 //!
 //! [`winit`]: https://github.com/rust-windowing/winit
 //! [`iced_runtime`]: https://github.com/iced-rs/iced/tree/0.13/runtime
+
 use crate::core::input_method;
 use crate::core::keyboard;
 use crate::core::mouse;
 use crate::core::touch;
 use crate::core::window;
 use crate::core::{Event, Point, Size};
+use winit::dpi::{LogicalPosition, LogicalSize};
 
 /// Converts some [`window::Settings`] into some `WindowAttributes` from `winit`.
 pub fn window_attributes(
@@ -103,8 +105,8 @@ pub fn window_attributes(
 
     #[cfg(target_os = "macos")]
     {
-        use winit::platform::macos::WindowAttributesExtMacOS;
         use crate::core::window::settings::WindowKind;
+        use winit::platform::macos::WindowAttributesExtMacOS;
 
         attributes = attributes
             .with_title_hidden(settings.platform_specific.title_hidden)
@@ -115,7 +117,9 @@ pub fn window_attributes(
                 settings.platform_specific.fullsize_content_view,
             )
             .with_kind(match settings.platform_specific.window_kind {
-                WindowKind::Normal => winit::platform::macos::WindowKind::Normal,
+                WindowKind::Normal => {
+                    winit::platform::macos::WindowKind::Normal
+                }
                 WindowKind::Popup => winit::platform::macos::WindowKind::Popup,
                 WindowKind::Panel => winit::platform::macos::WindowKind::Panel,
             });
@@ -138,12 +142,77 @@ pub fn window_attributes(
         }
         #[cfg(feature = "wayland")]
         {
+            use crate::core::window::settings::KeyboardInteractivity;
+            use crate::core::window::settings::Layer;
+            use winit::platform::wayland;
             use winit::platform::wayland::WindowAttributesExtWayland;
 
             attributes = attributes.with_name(
                 &settings.platform_specific.application_id,
                 &settings.platform_specific.application_id,
             );
+
+            let layer_shell_settings = settings.platform_specific.layer_shell;
+
+            if let Some(layer) = layer_shell_settings.layer {
+                attributes = attributes.with_layer(match layer {
+                    Layer::Background => wayland::Layer::Background,
+                    Layer::Bottom => wayland::Layer::Bottom,
+                    Layer::Top => wayland::Layer::Top,
+                    Layer::Overlay => wayland::Layer::Overlay,
+                });
+
+                if let Some(value) = layer_shell_settings.exclusive_zone {
+                    attributes = attributes.with_exclusive_zone(value);
+                }
+
+                if let Some(value) = layer_shell_settings.keyboard_interactivity
+                {
+                    let keyboard_interactivity = match value {
+                        KeyboardInteractivity::None => {
+                            wayland::KeyboardInteractivity::None
+                        }
+                        KeyboardInteractivity::Exclusive => {
+                            wayland::KeyboardInteractivity::Exclusive
+                        }
+                        KeyboardInteractivity::OnDemand => {
+                            wayland::KeyboardInteractivity::OnDemand
+                        }
+                    };
+                    attributes = attributes
+                        .with_keyboard_interactivity(keyboard_interactivity);
+                }
+
+                if let Some(value) = layer_shell_settings.anchor {
+                    attributes = attributes.with_anchor(
+                        wayland::Anchor::from_bits_retain(value.bits()),
+                    );
+                }
+
+                if let Some(value) = layer_shell_settings.output {
+                    attributes = attributes.with_output(value);
+                }
+
+                if let Some((top, right, bottom, left)) =
+                    layer_shell_settings.margin
+                {
+                    attributes =
+                        attributes.with_margin(top, right, bottom, left);
+                }
+
+                if let Some((x, y, width, height)) =
+                    layer_shell_settings.input_region
+                {
+                    attributes = attributes.with_region(
+                        LogicalPosition::new(x, y),
+                        LogicalSize::new(width, height),
+                    );
+                }
+
+                if let Some(namespace) = layer_shell_settings.namespace {
+                    attributes = attributes.with_namespace(namespace);
+                }
+            }
         }
     }
 

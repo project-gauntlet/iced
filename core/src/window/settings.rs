@@ -32,6 +32,9 @@ pub use platform::PlatformSpecific;
 #[cfg(target_os = "macos")]
 pub use platform::WindowKind;
 
+#[cfg(target_os = "linux")]
+pub use platform::{LayerShellSettings, Layer, KeyboardInteractivity, Anchor};
+
 /// The window settings of an application.
 #[derive(Debug, Clone)]
 pub struct Settings {
