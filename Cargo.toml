@@ -211,7 +211,7 @@ web-time = "1.1"
 wgpu = "24.0"
 window_clipboard = "0.4.1"
 #winit = "0.30.99"
-winit = { git = "https://github.com/project-gauntlet/winit.git", rev = "e9023f4f0434ba86dae50b1e92e53e565bef82ab" }
+winit = { git = "https://github.com/project-gauntlet/winit.git", rev = "3f32c4232443a9572e6c96b5fcbb1fd9ad636f89" }
 
 [workspace.lints.rust]
 rust_2018_idioms = { level = "deny", priority = -1 }
