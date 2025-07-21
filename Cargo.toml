@@ -211,7 +211,7 @@ web-time = "1.1"
 wgpu = "24.0"
 window_clipboard = "0.4.1"
 #winit = "0.30.99"
-winit = { git = "https://github.com/project-gauntlet/winit.git", rev = "3f32c4232443a9572e6c96b5fcbb1fd9ad636f89" }
+winit = { git = "https://github.com/project-gauntlet/winit.git", rev = "838583241fcd5bd855bd140a4df6fce3266a11a6" }
 
 [workspace.lints.rust]
 rust_2018_idioms = { level = "deny", priority = -1 }
@@ -240,3 +240,6 @@ useless_conversion = "deny"
 
 [workspace.lints.rustdoc]
 broken_intra_doc_links = "forbid"
+
+#[patch.crates-io]
+#winit = { path = "../winit" }
