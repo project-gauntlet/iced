@@ -1484,6 +1484,7 @@ fn run_action<P, C>(
                 for (id, ui) in interfaces.iter_mut() {
                     if let Some(window) = window_manager.get_mut(*id) {
                         ui.operate(&window.renderer, operation.as_mut());
+                        window.raw.request_redraw();
                     }
                 }
 
